@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>VoiceMM</title>
+    <meta
+      name="description"
+      content="Frontend estatico para um TTS em portugues brasileiro hospedado no Hugging Face Spaces."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-glow page-glow-left" aria-hidden="true"></div>
+    <div class="page-glow page-glow-right" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a class="brand" href="#hero" aria-label="VoiceMM">
+        <span class="brand-mark"></span>
+        <span class="brand-text">VoiceMM</span>
+      </a>
+      <nav class="topnav" aria-label="Navegacao principal">
+        <a href="#studio">Studio</a>
+        <a href="#workflow">Fluxo</a>
+        <a href="#stack">Stack</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="hero">
+        <div class="hero-copy reveal-up">
+          <p class="eyebrow">TTS pessoal com cara de produto real</p>
+          <h1>
+            Uma vitrine bonita na frente.
+            <span>Uma Space barata e util atras.</span>
+          </h1>
+          <p class="hero-lead">
+            O VoiceMM foi desenhado para te dar um mini-SaaS que serve para
+            uso proprio, demonstra portifolio e ainda cabe no plano gratis do
+            Hugging Face Spaces.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#studio">Testar agora</a>
+            <a class="button button-secondary" href="#stack">Ver arquitetura</a>
+          </div>
+          <ul class="hero-notes">
+            <li>Frontend estatico para GitHub Pages</li>
+            <li>Backend TTS em Gradio no Hugging Face Space</li>
+            <li>Vozes em portugues brasileiro com Kokoro</li>
+          </ul>
+        </div>
+
+        <div class="hero-stage reveal-up delay-1" aria-hidden="true">
+          <div class="signal-ring ring-one"></div>
+          <div class="signal-ring ring-two"></div>
+          <div class="signal-core">
+            <span>PT-BR</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="studio reveal-up delay-2" id="studio">
+        <div class="section-heading">
+          <p class="eyebrow">Studio</p>
+          <h2>Gere o audio sem build, sem backend proprio e sem gambiarra visual.</h2>
+        </div>
+
+        <div class="studio-shell">
+          <form class="composer" id="ttsForm">
+            <label class="field">
+              <span>Texto</span>
+              <textarea
+                id="textInput"
+                rows="8"
+                maxlength="450"
+                placeholder="Cole aqui uma copy, locucao curta, CTA ou roteiro pequeno."
+              >Seu produto pode soar profissional mesmo com uma arquitetura simples, barata e bem pensada.</textarea>
+            </label>
+
+            <div class="field-row">
+              <label class="field">
+                <span>Voz</span>
+                <select id="voiceInput">
+                  <option value="pf_dora">Dora, feminina e clara</option>
+                  <option value="pm_alex">Alex, masculina e neutra</option>
+                  <option value="pm_santa">Santa, masculina e encorpada</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Velocidade</span>
+                <input
+                  id="speedInput"
+                  type="range"
+                  min="0.8"
+                  max="1.25"
+                  step="0.05"
+                  value="1"
+                />
+                <output id="speedValue" for="speedInput">1.00x</output>
+              </label>
+            </div>
+
+            <div class="field field-compact">
+              <div class="field-label-row">
+                <span>Space ID do Hugging Face</span>
+                <button class="text-button" id="saveConfigButton" type="button">
+                  salvar
+                </button>
+              </div>
+              <input
+                id="spaceIdInput"
+                type="text"
+                spellcheck="false"
+                placeholder="Madras1/VoiceMM"
+              />
+              <small>
+                Esse valor fica salvo no navegador para voce nao precisar editar
+                codigo a cada deploy.
+              </small>
+            </div>
+
+            <div class="sample-row" aria-label="Exemplos rapidos">
+              <button class="sample-pill" type="button" data-sample="Apresente sua oferta em vinte segundos com tom confiante e ritmo natural.">
+                oferta
+              </button>
+              <button class="sample-pill" type="button" data-sample="Crie uma abertura curta para um video de portfolio com voz clara e profissional.">
+                portfolio
+              </button>
+              <button class="sample-pill" type="button" data-sample="Explique seu produto em portugues brasileiro com uma locucao simples e elegante.">
+                explicacao
+              </button>
+            </div>
+
+            <div class="composer-footer">
+              <div class="character-meter">
+                <span id="charCount">0</span>
+                <span>/ 450</span>
+              </div>
+              <button class="button button-primary button-wide" id="generateButton" type="submit">
+                Gerar audio
+              </button>
+            </div>
+          </form>
+
+          <aside class="result-panel">
+            <div class="result-card">
+              <p class="result-kicker">Resultado</p>
+              <h3>Seu audio aparece aqui.</h3>
+              <p class="result-copy" id="statusText">
+                Configure o `Space ID`, escreva o texto e gere. Se a Space estiver
+                dormindo, a primeira resposta pode demorar um pouco.
+              </p>
+
+              <audio id="audioPlayer" controls preload="none"></audio>
+
+              <a class="button button-secondary button-download" id="downloadLink" href="#" download>
+                Baixar WAV
+              </a>
+
+              <div class="meta-box" id="metaBox">
+                Nenhum audio gerado ainda.
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="workflow reveal-up" id="workflow">
+        <div class="section-heading">
+          <p class="eyebrow">Fluxo</p>
+          <h2>Separado do jeito certo para ficar leve de manter.</h2>
+        </div>
+
+        <div class="workflow-grid">
+          <article>
+            <span>01</span>
+            <h3>Frontend estatico</h3>
+            <p>
+              O GitHub Pages entrega uma interface limpa, publica e barata sem te
+              forcar a manter servidor web.
+            </p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>API em Space</h3>
+            <p>
+              O Hugging Face Space cuida do processo de TTS e expoe um endpoint
+              Gradio que o navegador consegue consumir.
+            </p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Modelo enxuto</h3>
+            <p>
+              A escolha do Kokoro deixa o projeto mais plausivel no CPU gratis do
+              que alternativas muito pesadas.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="stack reveal-up" id="stack">
+        <div class="section-heading">
+          <p class="eyebrow">Stack</p>
+          <h2>Uma stack pequena, honesta e boa para portfolio.</h2>
+        </div>
+
+        <div class="stack-strip">
+          <div>
+            <strong>Interface</strong>
+            <p>HTML, CSS e JavaScript puro para deploy direto no GitHub Pages.</p>
+          </div>
+          <div>
+            <strong>Inferencia</strong>
+            <p>Gradio + Kokoro em uma Hugging Face Space publica.</p>
+          </div>
+          <div>
+            <strong>Trade-off</strong>
+            <p>Cold start e throughput modesto, mas excelente custo-beneficio para MVP pessoal.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
