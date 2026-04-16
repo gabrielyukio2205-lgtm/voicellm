@@ -1,7 +1,7 @@
 import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/+esm";
 
 const STORAGE_KEY = "voicemm_space_id";
-const PLACEHOLDER_SPACE_ID = "Madras1/VoiceMM";
+const DEFAULT_SPACE_ID = "Madras1/VoiceMM";
 
 const form = document.querySelector("#ttsForm");
 const textInput = document.querySelector("#textInput");
@@ -50,12 +50,12 @@ function setBusy(isBusy) {
 }
 
 function readSavedSpaceId() {
-  return window.localStorage.getItem(STORAGE_KEY) || PLACEHOLDER_SPACE_ID;
+  return window.localStorage.getItem(STORAGE_KEY) || DEFAULT_SPACE_ID;
 }
 
 function saveSpaceId() {
   const value = spaceIdInput.value.trim();
-  window.localStorage.setItem(STORAGE_KEY, value || PLACEHOLDER_SPACE_ID);
+  window.localStorage.setItem(STORAGE_KEY, value || DEFAULT_SPACE_ID);
   cachedClient = null;
   cachedSpaceId = "";
   setMeta("Space ID salvo neste navegador.", "success");
@@ -96,8 +96,8 @@ function parseError(error) {
 
 async function getClient(spaceId) {
   const normalized = spaceId.trim();
-  if (!normalized || normalized === PLACEHOLDER_SPACE_ID) {
-    throw new Error("Preencha o Space ID real do Hugging Face antes de gerar.");
+  if (!normalized) {
+    throw new Error("Preencha o Space ID do Hugging Face antes de gerar.");
   }
   if (cachedClient && cachedSpaceId === normalized) {
     return cachedClient;
