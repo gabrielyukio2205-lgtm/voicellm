@@ -17,6 +17,9 @@ const downloadLink = document.querySelector("#downloadLink");
 const metaBox = document.querySelector("#metaBox");
 const charCount = document.querySelector("#charCount");
 const sampleButtons = document.querySelectorAll(".sample-pill");
+const currentVoiceLabel = document.querySelector("#currentVoiceLabel");
+const spaceSummary = document.querySelector("#spaceSummary");
+const statusPill = document.querySelector("#statusPill");
 
 let cachedSpaceId = "";
 let cachedClient = null;
@@ -29,8 +32,57 @@ function updateCharacterCount() {
   charCount.textContent = String(textInput.value.length);
 }
 
+function updateVoiceSummary() {
+  if (!currentVoiceLabel) {
+    return;
+  }
+  currentVoiceLabel.textContent =
+    voiceInput.options[voiceInput.selectedIndex]?.text || "Voz nao definida";
+}
+
+function updateSpaceSummary() {
+  if (!spaceSummary) {
+    return;
+  }
+  spaceSummary.textContent = spaceIdInput.value.trim() || DEFAULT_SPACE_ID;
+}
+
 function setStatus(message) {
   statusText.textContent = message;
+}
+
+function setConnectionState(state) {
+  if (!statusPill) {
+    return;
+  }
+
+  statusPill.classList.remove(
+    "status-idle",
+    "status-working",
+    "status-ready",
+    "status-error"
+  );
+
+  if (state === "working") {
+    statusPill.classList.add("status-working");
+    statusPill.textContent = "loading";
+    return;
+  }
+
+  if (state === "ready") {
+    statusPill.classList.add("status-ready");
+    statusPill.textContent = "ready";
+    return;
+  }
+
+  if (state === "error") {
+    statusPill.classList.add("status-error");
+    statusPill.textContent = "error";
+    return;
+  }
+
+  statusPill.classList.add("status-idle");
+  statusPill.textContent = "idle";
 }
 
 function setMeta(message, tone = "neutral") {
@@ -58,6 +110,7 @@ function saveSpaceId() {
   window.localStorage.setItem(STORAGE_KEY, value || DEFAULT_SPACE_ID);
   cachedClient = null;
   cachedSpaceId = "";
+  updateSpaceSummary();
   setMeta("Space ID salvo neste navegador.", "success");
 }
 
@@ -117,6 +170,7 @@ async function handleSubmit(event) {
   }
 
   setBusy(true);
+  setConnectionState("working");
   setStatus(
     "Conectando com a sua Space e pedindo o audio. Se ela estava dormindo, a primeira chamada pode levar um pouco."
   );
@@ -145,12 +199,14 @@ async function handleSubmit(event) {
     downloadLink.classList.remove("is-disabled");
 
     setStatus("Audio pronto.");
+    setConnectionState("ready");
     setMeta(outputToText(rawMeta), "success");
   } catch (error) {
     audioPlayer.removeAttribute("src");
     downloadLink.href = "#";
     downloadLink.classList.add("is-disabled");
     setStatus("Falha ao falar com a Space.");
+    setConnectionState("error");
     setMeta(parseError(error), "error");
   } finally {
     setBusy(false);
@@ -160,10 +216,15 @@ async function handleSubmit(event) {
 spaceIdInput.value = readSavedSpaceId();
 updateSpeedLabel();
 updateCharacterCount();
+updateVoiceSummary();
+updateSpaceSummary();
+setConnectionState("idle");
 downloadLink.classList.add("is-disabled");
 
 speedInput.addEventListener("input", updateSpeedLabel);
 textInput.addEventListener("input", updateCharacterCount);
+voiceInput.addEventListener("change", updateVoiceSummary);
+spaceIdInput.addEventListener("input", updateSpaceSummary);
 saveConfigButton.addEventListener("click", saveSpaceId);
 form.addEventListener("submit", handleSubmit);
 
